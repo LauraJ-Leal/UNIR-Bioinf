@@ -1,5 +1,5 @@
-setwd("C:/Users/laura/OneDrive/Documentos/Maestría/Algoritmos e IA/Actividad 2")
-
+path <- "C:/Users/laura/OneDrive/Documentos/Maestría/Algoritmos e IA/Actividad 2"
+setwd(path)
 
 ##Preparación de las bases de datos para modelos de clasificación##
 data <- read.csv('data.csv')
@@ -11,9 +11,9 @@ data$Diagnosis <- as.factor(data$Diagnosis)
 library(caret) #Cargar librería para el entrenamiento de los datos
 
 ##Determinar cómo se partirán los datos para el entrenamiento y el testeo
-set.seed(123)
+set.seed(123) #Semilla para reproducibilidad 
 
-trainIndex <- createDataPartition(data$Diagnosis, p = 0.75, list = FALSE)
+trainIndex <- createDataPartition(data$Diagnosis, p = 0.75, list = FALSE) #Se recomienda del 70 al 80% en datos para el entrenamiento
 trainData <- data[trainIndex,]
 testData <- data[-trainIndex,]
 
