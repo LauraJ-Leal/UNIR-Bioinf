@@ -3,9 +3,20 @@ library(ggplot2) # Para gráficar
 library(factoextra) #Para Visualización del clustering
 library(cluster) #Para Clustering divisivo (DIANA)
 
+#Preparación de datos
+df <- read.csv("Dataset expresión genes.csv") #Archivo Dataset expresión genes en formato csv
+
+library(dplyr)
+df_genes <- df %>% dplyr::select(starts_with("AQ_"))
+str(df_genes)
+
+is.na(colSums(df_genes)) # ver si hay missing
+df_genes_scale <- scale(df_genes)  # Normalización z-score
+
+
 # Implementación del clustering divisivo
-diana_euclidean <- diana(df, metric = "euclidean", stand = FALSE) # ideal para datos donde las distancias más pequeñas
-diana_manhattan <- diana(df, metric = "manhattan", stand = FALSE) # ideal para datos con diferentes escalas o datos categóricos
+diana_euclidean <- diana(df_genes_scale, metric = "euclidean", stand = FALSE) # ideal para datos donde las distancias más pequeñas
+diana_manhattan <- diana(df_genes_scale, metric = "manhattan", stand = FALSE) # ideal para datos con diferentes escalas o datos categóricos
 #La metrica STAND es para dar información si nuestra base de datos esta escalada (TRUE) o no (FALSE)
 
 #Crear un dendograma (diagrama de simulitudes entre grupos)
