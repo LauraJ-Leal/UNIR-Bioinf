@@ -1,0 +1,46 @@
+
+library(vegan)
+library(readr) #Librería para la lectura de ficheros
+library(caret)
+library(stats)
+library(ggplot2)
+
+#Cargue y preparación de datos
+clases <- read.csv('classes.csv', sep = ';')
+names <- read.table('column_names.txt', header = TRUE, sep = '\t')
+gene <- read.csv('gene_expression.csv', sep = ';')
+df <- read.csv('gene_expression.csv', sep = ';', col.names = read_lines('column_names.txt'))
+df
+sumas <- colSums(df) #sumar los datos por columnas
+columnascero <- names(sumas[sumas == 0]) #ver cuántas sumas son 0
+print(columnascero) #Datos que hay que excluir: "MIER3"   "ZCCHC12" "RPL22L1"
+df <- df[, !names(df) %in% columnascero] #Dataset sin estas columnas, eliminación de datos 0
+df$class <- clases$class #Adjuntar las clases
+colSums(is.na(df))
+df_scaled <- scale(df) #Escalar dataframe, normalización de datos
+df_scaled
+
+
+#### ---- Clustering no jerárquico con kmeans ----
+library(factoextra)
+library(stats)
+
+
+kmeans.result <- kmeans(df_sacled, centers = 2, iter.max = 100, nstart = 25)
+fviz_cluster(kmeans.result, df_sacled, xlab = '', ylab = '') +
+  ggtitle("Cluster plot, centers = 2", subtitle = "") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(b = -10)))
+
+
+kmeans.result <- kmeans(df_sacled, centers = 3, iter.max = 100, nstart = 25)
+fviz_cluster(kmeans.result, df_sacled, xlab = '', ylab = '') +
+  ggtitle("Cluster plot, centers = 3", subtitle = "") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust = 0.5, margin = margin(b = -10)))
+
+
+# n optimo de clusters
+fviz_nbclust(df_sacled, kmeans, method = "wss") +
+  ggtitle("Optimal number of clusters", subtitle = "") +
+  theme_classic()
