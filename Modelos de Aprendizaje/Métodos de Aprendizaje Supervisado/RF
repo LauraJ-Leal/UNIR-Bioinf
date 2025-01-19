@@ -1,1 +1,35 @@
+#Cargamos las librerias necesarias
+library(Caret)
 
+#Al cargar nuestra base de datos realizamos una semilla
+set.seed(1995) #Para reproducibilidad
+
+#Hacemos la división de nuestra base de datos en entrenamiento y test, lo recomendado es 70% para entrenamiento y 30% para prueba
+#Definimos la variable objetivo (en este caso Diagnosis)
+trainIndex <- createDataPartition(data$Diagnosis, p = 0.7, list = FALSE) #Valor p de 0 a 1 es modificable (0.7 equivale al 70% de los datos)
+trainData <- data[trainIndex, ]
+testData <- data[-trainIndex, ]
+
+#Iniciamos con el modelo RANDOM FOREST
+rf_model <- train(Diagnosis ~ .,
+                  data = trainData,
+                  method = "rf",
+                  trControl = trainControl(method = "cv", number = 10), #Definimos el esquema de validación
+                  preProcess = c("center", "scale"), #Se realiza una estandarización de las variables
+                  tuneLength = 15, #Controlamos la cantidad de combinaciones
+                  prob.model = TRUE) #Nos ayuda a que posterior el modelo pueda ser usado para predicciones
+
+rf_model
+plot(rf_model)
+
+#Ya generado el entrenamiento, realizamos la predicción con los datos test
+rf_predictions <- predict(rf_model, testData)
+print(rf_predictions)
+
+#Revisamos la precisión del modelo
+Confusion_rf <- confusionMatrix(rf_predictions, testData$Diagnosis)
+print(Confusion_rf)
+
+#Generamos probabilidad
+probabilities_rf_model <- predict(rf_model, newdata = testData, type = "prob") #Con esto evaluamos que tan preciso es que cada observación sea de la clase mencionada.
+print(probabilities_rf_model)
