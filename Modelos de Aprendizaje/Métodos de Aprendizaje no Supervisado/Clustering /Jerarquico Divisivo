@@ -1,1 +1,36 @@
+#### ---- Clustering jerarquico divisivo: Usa para Datasets con muchas observaciones
+library(ggplot2) # Para gráficar
+library(factoextra) #Para Visualización del clustering
+library(cluster) #Para Clustering divisivo (DIANA)
+
+# Implementación del clustering divisivo
+diana_euclidean <- diana(df, metric = "euclidean", stand = FALSE) # ideal para datos donde las distancias más pequeñas
+diana_manhattan <- diana(df, metric = "manhattan", stand = FALSE) # ideal para datos con diferentes escalas o datos categóricos
+#La metrica STAND es para dar información si nuestra base de datos esta escalada (TRUE) o no (FALSE)
+
+#Crear un dendograma (diagrama de simulitudes entre grupos)
+colors <- rainbow(5)
+clust_diana_euclidean <- fviz_dend(diana_euclidean, 
+                                   cex = 0.5, #Ajustar tamaño del texto
+                                   k = 5, #Número de clusters visibles (este valor es variable)
+                                   palette = colors, 
+                                   main = 'Euclidean',
+                                   xlab = "Índice de Observaciones",
+                                   ylab = "Distancia") + 
+  theme_classic()
+
+
+colors <- rainbow(5)
+clust_diana_manhattan <- fviz_dend(diana_manhattan, 
+                                   cex = 0.5, #Ajustar tamaño del texto
+                                   k = 5, #Número de clusters visibles (este valor es variable)
+                                   palette = colors, 
+                                   main = 'Manhattan',
+                                   xlab = "Índice de Observaciones",
+                                   ylab = "Distancia") + 
+  theme_classic()
+
+#Unir ambos dendogramas en una gráfica.
+library(gridExtra)
+grid.arrange(clust_diana_euclidean, clust_diana_manhattan, nrow = 2) #hace referencia al número de filas
 
