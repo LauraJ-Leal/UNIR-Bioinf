@@ -1,5 +1,7 @@
 # UNIR-Bioinf
 # Métodos de Machine Learning: Supervisados y No Supervisados
+Equipo 1, Lote 8
+Integrantes: Isabella Cañaveral Sánchez, Laura Juliana Leal Lugo, Dick Fernando Villarreal Portillo, Ivonne Kelly Espinoza Pantigozo
 
 ## Descripción
 Implementación y análisis completo de métodos de machine learning supervisados y no supervisados, con ejemplos prácticos y visualizaciones.
