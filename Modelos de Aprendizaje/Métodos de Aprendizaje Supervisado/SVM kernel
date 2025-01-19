@@ -1,0 +1,63 @@
+setwd("C:/Users/laura/OneDrive/Documentos/Maestría/Algoritmos e IA/Actividad 2")
+
+
+##Preparación de las bases de datos para modelos de clasificación##
+data <- read.csv('data.csv')
+str(data) #Revisión de datos
+summary(data)
+
+data$Diagnosis <- as.factor(data$Diagnosis)
+
+library(caret) #Cargar librería para el entrenamiento de los datos
+
+##Determinar cómo se partirán los datos para el entrenamiento y el testeo
+set.seed(123)
+
+trainIndex <- createDataPartition(data$Diagnosis, p = 0.75, list = FALSE)
+trainData <- data[trainIndex,]
+testData <- data[-trainIndex,]
+
+##Instalación de librerías para modelos de Machine Learning##
+installed.packages(c('glmnet', 'tidyverse', 'rpart', 'rpart.plot', 'rattle', 'pROC', 'PRROC', 'MASS', 'klaR', 'gridExtra'))
+install.packages('glmnet')
+install.packages('rpart.plot')
+install.packages('rattle')
+install.packages('PRROC')
+
+#Cargar librerías para modedlos de Machine Learning##
+library(glmnet) # ElasticNet
+library(tidyverse)
+library(caret) # ML
+library(rpart) # DT
+library(rpart.plot) # DT plot
+library(rattle) # DT plot
+library(pROC) # ROC
+library(PRROC) # PR-Curve
+library(MASS) # LDA
+library(klaR) # RDA
+library(gridExtra) # juntar los gráficos
+
+# SVM kernel Polinomial (no lineal)
+#Instalación de kernelab
+svmModelKernelPolynomial <- train(Diagnosis ~.,
+                                  data = trainData,
+                                  method = "svmPoly",
+                                  trControl = trainControl(method = "cv", number = 10),
+                                  preProcess = c("center", "scale"),
+                                  tuneLength = 5,
+                                  prob.model = TRUE) 
+svmModelKernelPolynomial
+
+plot(svmModelKernelPolynomial)
+
+
+# Realizar predicciones en el conjunto de prueba utilizando el modelo entrenado
+predictions <- predict(svmModelKernelPolynomial, newdata = testData )
+predictions
+
+# Evaluar la precisión del modelo utilizando la matriz de confusión
+confusionMatrix(predictions, testData$Diagnosis)
+
+# SVM kernel
+probabilities_svm_kernelpol <- predict(svmModelKernelPolynomial, newdata = testData, type = "prob")
+probabilities_svm_kernelpol
