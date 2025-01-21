@@ -1,1 +1,83 @@
+#Proceso de reducción de la dimensionalidad con PCA
+
+# Reducción de a Dimensionalidad
+# Método PCA
+# date: "2025-01-20"
+
+library(ggplot2) # Gráficos
+library(limma) # Necesaria para análisis diferencial de datos continuos
+library(Rtsne) # Para t-SNE
+library(vegan) # Para isomap
+library(randomForest) # Validación con métodos supervisados randomforest para métodos no supervisados
+
+setwd = ('d:/documentos/bioinformatica/cuatrimestre1/algoritmos/actividades/actividad1')
+archivo_genes <- 'd:/documentos/bioinformatica/cuatrimestre1/algoritmos/actividades/actividad1/cancer/data.csv'
+archivo_etiquetas <- 'd:/documentos/bioinformatica/cuatrimestre1/algoritmos/actividades/actividad1/cancer/labels.csv'
+data_genes <- read.csv(archivo_genes)
+data_etiquetas <- read.csv(archivo_etiquetas)
+
+# Usa la columna X de data_genes como nombres de fila y elimina esa columna:
+rownames(data_genes) <- data_genes$X
+data_genes <- data_genes[, -1]  
+
+# Usa la columna X de data_genes como nombres de fila y elimina esa columna:
+rownames(data_etiquetas) <- data_etiquetas$X
+data_etiquetas <- data_etiquetas[, -1, drop = FALSE]
+
+# Busca nombres de columnas duplicadas
+any(duplicated(colnames(data_genes)))  # Debe devolver FALSE
+any(duplicated(rownames(data_etiquetas)))  # Debe devolver FALSE
+
+# Transponer data_genes para que coincidan filas de labes con columnas de genes
+data_genes <- t(data_genes)
+
+# Verificar alineación
+if (!all(colnames(data_genes) == rownames(data_etiquetas))) {
+  stop("Nombres de muestras no coinciden entre data_genes y data_etiquetas.")
+}
+
+# La transformación logarítmica ayuda a estabilizar la varianza y es estándar en análisis de datos continuos.
+data_genes_log <- log2(data_genes + 1)  # Evitar log(0) sumando 1
+
+# Crear el diseño experimental
+# La matriz de diseño especifica cómo las variables explicativas (factores o covariables) se relacionan con las observaciones en los datos.
+# El modelo se define con base en la columnas Class que contiene las categorías
+# La matriz de diseño (model.matrix)  convierte factores y variables categóricas en variables numéricas (codificación dummy).
+design <- model.matrix(~ Class, data = data_etiquetas)
+
+# Ajusta el modelo lineal para cada fila de la matriz de datos data_genes_log utilizando la matriz de diseño design. 
+# Devuelve un objeto fit que contiene: Coeficientes estimados (β) para cada gen y condición, Varianzas residuales para evaluar la calidad del ajuste.
+fit <- lmFit(data_genes_log, design)
+
+# Ajustar los valores con Bayes empírico, Este ajuste estabilizar las estimaciones de varianza
+# mejora la sensibilidad y especificidad para detectar genes diferencialmente expresados.
+fit <- eBayes(fit)
+
+# Obtener los resultados para la comparación específica y devuelve la tabla con la información de los genes diferencialmente expresados
+results <- topTable(fit, coef = 2, number = Inf)  # Cambia coef según la comparación deseada   OJO PREGUNTAR
+
+# Matriz de distancia se usa para mds, isomap, evalua similitudes o diferencias entre observaciones ( calcula distancias entre las filas de una matriz o dataframe)
+dist_matrix <- dist(t(data_genes_log))
+
+# PCA en los datos log-transformados
+# Calcula componentes principales basándose en una descomposición en valores singulares (SVD) de la matriz de datos.
+# Genera un nuevo sistema de coordenadas (componentes principales)
+pca <- prcomp(t(data_genes_log))
+
+# Crear un dataframe para graficar los 2 principales componentes
+pca_data <- data.frame(
+  PC1 = pca$x[, 1],
+  PC2 = pca$x[, 2],
+  Class = data_etiquetas$Class
+)
+
+# Graficar PCA
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Class)) +
+  geom_point(size = 3) +
+  labs(title = "PCA de expresión génica", x = "PC1", y = "PC2") +
+  theme_minimal()
+
+
+
+
 
