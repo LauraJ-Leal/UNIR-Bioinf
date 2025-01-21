@@ -1,8 +1,9 @@
-#Proceso de reducción de la dimensionalidad con PCA
+#Proceso de reducción de la dimensionalidad 
 
 # Reducción de a Dimensionalidad
-# Método PCA
+# Método t-SNE
 # date: "2025-01-20"
+# Se verifica el método de reducción para hacer lo con t-SNE en lugar de PCA
 
 library(ggplot2) # Gráficos
 library(limma) # Necesaria para análisis diferencial de datos continuos
@@ -59,25 +60,20 @@ results <- topTable(fit, coef = 2, number = Inf)  # Cambia coef según la compar
 # Matriz de distancia se usa para mds, isomap, evalua similitudes o diferencias entre observaciones ( calcula distancias entre las filas de una matriz o dataframe)
 dist_matrix <- dist(t(data_genes_log))
 
-# PCA en los datos log-transformados
-# Calcula componentes principales basándose en una descomposición en valores singulares (SVD) de la matriz de datos.
-# Genera un nuevo sistema de coordenadas (componentes principales)
-pca <- prcomp(t(data_genes_log))
+# para reproducir este método se establece una semilla, ya que el método es aleatorio
+set.seed(123)
+# t-SNE reduce la dimensionalidad preservando relaciones locales. Utiliza distribuciones de probabilidad para minimizar la divergencia de Kullback-Leibler (KL).
+tsne_result <- Rtsne(t(data_genes_log), dims = 2, perplexity = 30, max_iter = 500)
 
-# Crear un dataframe para graficar los 2 principales componentes
-pca_data <- data.frame(
-  PC1 = pca$x[, 1],
-  PC2 = pca$x[, 2],
+# Gráfico de t-SNE
+tsne_data <- data.frame(
+  Dim1 = tsne_result$Y[, 1],
+  Dim2 = tsne_result$Y[, 2],
   Class = data_etiquetas$Class
 )
 
-# Graficar PCA
-ggplot(pca_data, aes(x = PC1, y = PC2, color = Class)) +
+# graficar
+ggplot(tsne_data, aes(x = Dim1, y = Dim2, color = Class)) +
   geom_point(size = 3) +
-  labs(title = "PCA de expresión génica", x = "PC1", y = "PC2") +
+  labs(title = "t-SNE de Expresión Génica", x = "Dim1", y = "Dim2") +
   theme_minimal()
-
-
-
-
-
