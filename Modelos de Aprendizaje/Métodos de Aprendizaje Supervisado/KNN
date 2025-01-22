@@ -1,3 +1,4 @@
+# adicionar gráfico al modelo KNN
 # Cargar las librerías necesarias
 library(class)      # Para la función knn
 library(caret)      # Para particionar los datos y métricas de rendimiento
@@ -44,4 +45,17 @@ test_results <- data.frame(
   Predicted = predictions
 )
 
+# Crear el gráfico ADICIONADO
+ggplot(test_results, aes(x = Sepal.Length, y = Sepal.Width)) +
+  geom_point(aes(color = Predicted, shape = Actual), size = 3) +
+  labs(
+    title = "KNN: Clasificación de las especies del conjunto de prueba",
+    x = "Longitud del Sépalo",
+    y = "Ancho del Sépalo",
+    color = "Predicción",
+    shape = "Real"
+  ) +
+  theme_minimal() +
+  scale_color_manual(values = c("setosa" = "blue", "versicolor" = "green", "virginica" = "red")) +
+  scale_shape_manual(values = c(16, 17, 18))  # Formas diferentes para clases reales
 
