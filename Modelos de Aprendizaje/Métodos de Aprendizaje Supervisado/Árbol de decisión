@@ -39,3 +39,6 @@ print(conf_matrix)
 cat("Accuracy: ", conf_matrix$overall['Accuracy'], "\n")
 cat("Kappa: ", conf_matrix$overall['Kappa'], "\n")
 
+# Graficar el árbol de decisión
+rpart.plot(tree_model, type = 3, extra = 102, fallen.leaves = TRUE, main = "Árbol de Decisión - Modelo de Clasificación")
+
