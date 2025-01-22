@@ -1,51 +1,101 @@
-#######################################
-# Analisis de componentes principales #
-#######################################
+# Otra versión de Reducción de la dimensionalidad con PCA
+# --------------------------------------------------------------
+# Ejemplo de PCA en R utilizando el conjunto de datos 'iris'
+# --------------------------------------------------------------
 
-# Directorio en donde tendremos nuestros datos
-setwd("C:/Users/laura/OneDrive/Documentos/Maestría/Algoritmos e IA')
+# Paso 1: Cargar el conjunto de datos
+data(iris)  # Cargar datos incluidos en R
+head(iris)  # Visualizar las primeras filas del conjunto de datos
 
-# Carga de librerias
-library(stats)   # librería para el PCA
-library(ggplot2) # librería para hacer la representación gráfica
+# Paso 2: Preparar los datos para el PCA
+# Eliminamos la columna categórica 'Species'
+iris_data <- iris[, -5]  # Seleccionar solo las columnas numéricas
 
-# Lectura de datos
-data.raw <- read.csv('data.csv')
-labels.raw <- read.csv('labels.csv')
+# Paso 3: Escalar los datos
+# Es importante estandarizar los datos para que cada variable tenga media 0 y desviación estándar 1
+iris_scaled <- scale(iris_data)
 
-# Guardado en un dataframe de los 500 primeros genes 
-data <- data.frame(sapply(data.raw[4:500], as.numeric))
+# Paso 4: Aplicar el PCA
+pca_result <- prcomp(iris_scaled, center = TRUE, scale. = TRUE)
 
-# Calculo de componentes principales con la funcion prcomp
-pca.results <- prcomp(data, center=TRUE, scale=FALSE)
+# Paso 5: Analizar los resultados
+summary(pca_result)  # Resumen de la varianza explicada por cada componente principal
 
-# Resultado de las componentes principales
-pca.df <- data.frame(pca.results$x)
+# Paso 6: Graficar la varianza explicada
+# Proporción de la varianza explicada por cada componente
+var_exp <- pca_result$sdev^2 / sum(pca_result$sdev^2)  # Proporción de varianza
+cum_var_exp <- cumsum(var_exp)  # Varianza acumulada
 
-# Varianza (cuadrado de la desviacion tipica)
-varianzas <- pca.results$sdev^2
+# Graficar la varianza explicada
+barplot(var_exp, main = "Proporción de Varianza Explicada",
+        xlab = "Componentes Principales", ylab = "Proporción de Varianza")
 
-# Total de la varianza de los datos
-total.varianza <- sum(varianzas)
+# Paso 7: Visualizar las observaciones en el espacio de los primeros dos componentes
+library(ggplot2)  # Cargar ggplot2 para gráficos
 
-# Varianza explicada por cada componente principal
-varianza.explicada <- varianzas/total.varianza
+# Convertir los datos del PCA a un DataFrame
+pca_data <- data.frame(PC1 = pca_result$x[, 1], 
+                       PC2 = pca_result$x[, 2], 
+                       Species = iris$Species)
 
-# Calculamos la varianza acumulada 
-varianza.acumulada <- cumsum(varianza.explicada)
+# Graficar las observaciones proyectadas en el espacio de los primeros dos componentes
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
+  geom_point(size = 2) +
+  labs(title = "PCA de iris: PC1 vs PC2",
+       x = "Componente Principal 1 (PC1)",
+       y = "Componente Principal 2 (PC2)") +
+  theme_minimal()
 
-# Tomamos el numero de componentes principales que explican el 90% de la varianza
-n.pc <- min(which(varianza.acumulada > 0.9))
+# Paso 8: Interpretar los resultados
+# Cargar la matriz de carga (loading) para ver la contribución de cada variable original a los componentes
+pca_result$rotation  # Matriz de carga de las variables originales
+# --------------------------------------------------------------
+# Ejemplo de PCA en R utilizando el conjunto de datos 'iris'
+# --------------------------------------------------------------
 
-# Etiquetas de los ejes del gráfico
-x_label <- paste0(paste('PC1', round(varianza.explicada[1] * 100, 2)), '%')
-y_label <- paste0(paste('PC2', round(varianza.explicada[2] * 100, 2)), '%')
+# Paso 1: Cargar el conjunto de datos
+data(iris)  # Cargar datos incluidos en R
+head(iris)  # Visualizar las primeras filas del conjunto de datos
 
-# Representación gráfica de las primeras dos componentes principales respecto a los datos
-ggplot(pca.df, aes(x=PC1, y=PC2, color=labels.raw$Class)) +
-  geom_point(size=3) +
-  scale_color_manual(values=c('red', 'blue', 'green', 'orange', 'purple')) +
-  labs(title='PCA Breast Cancer', x=x_label, y=y_label, color='Grupo') +
-  theme_classic() +
-  theme(panel.grid.major = element_line(color="gray90"), panel.grid.minor = element_blank(),
-        panel.background = element_rect(fill = "gray95"), plot.title = element_text(hjust = 0.5))
+# Paso 2: Preparar los datos para el PCA
+# Eliminamos la columna categórica 'Species'
+iris_data <- iris[, -5]  # Seleccionar solo las columnas numéricas
+
+# Paso 3: Escalar los datos
+# Es importante estandarizar los datos para que cada variable tenga media 0 y desviación estándar 1
+iris_scaled <- scale(iris_data)
+
+# Paso 4: Aplicar el PCA
+pca_result <- prcomp(iris_scaled, center = TRUE, scale. = TRUE)
+
+# Paso 5: Analizar los resultados
+summary(pca_result)  # Resumen de la varianza explicada por cada componente principal
+
+# Paso 6: Graficar la varianza explicada
+# Proporción de la varianza explicada por cada componente
+var_exp <- pca_result$sdev^2 / sum(pca_result$sdev^2)  # Proporción de varianza
+cum_var_exp <- cumsum(var_exp)  # Varianza acumulada
+
+# Graficar la varianza explicada
+barplot(var_exp, main = "Proporción de Varianza Explicada",
+        xlab = "Componentes Principales", ylab = "Proporción de Varianza")
+
+# Paso 7: Visualizar las observaciones en el espacio de los primeros dos componentes
+library(ggplot2)  # Cargar ggplot2 para gráficos
+
+# Convertir los datos del PCA a un DataFrame
+pca_data <- data.frame(PC1 = pca_result$x[, 1], 
+                       PC2 = pca_result$x[, 2], 
+                       Species = iris$Species)
+
+# Graficar las observaciones proyectadas en el espacio de los primeros dos componentes
+ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
+  geom_point(size = 2) +
+  labs(title = "PCA de iris: PC1 vs PC2",
+       x = "Componente Principal 1 (PC1)",
+       y = "Componente Principal 2 (PC2)") +
+  theme_minimal()
+
+# Paso 8: Interpretar los resultados
+# Cargar la matriz de carga (loading) para ver la contribución de cada variable original a los componentes
+pca_result$rotation  # Matriz de carga de las variables originales
