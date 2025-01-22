@@ -1,0 +1,47 @@
+# Cargar las librerías necesarias
+library(class)      # Para la función knn
+library(caret)      # Para particionar los datos y métricas de rendimiento
+library(ggplot2)    # Para gráficos
+
+# Cargar el conjunto de datos iris
+data(iris)
+
+# Visualizar las primeras filas del conjunto de datos
+head(iris)
+
+# Dividir el conjunto de datos en entrenamiento (70%) y prueba (30%)
+set.seed(123)  # Fijar la semilla para reproducibilidad
+train_index <- createDataPartition(iris$Species, p = 0.7, list = FALSE)
+
+train_data <- iris[train_index, ]
+test_data <- iris[-train_index, ]
+
+# Separar las características (X) y las etiquetas (y)
+train_X <- train_data[, -5]  # Columnas 1 a 4 (características)
+train_y <- train_data[, 5]   # Columna 5 (etiqueta)
+
+test_X <- test_data[, -5]
+test_y <- test_data[, 5]
+
+# Aplicar el algoritmo KNN con k=3
+k <- 3
+predictions <- knn(train = train_X, test = test_X, cl = train_y, k = k)
+
+# Evaluar el rendimiento del modelo
+conf_matrix <- confusionMatrix(predictions, test_y)
+print(conf_matrix)
+
+# Métricas de evaluación
+cat("Accuracy: ", conf_matrix$overall['Accuracy'], "\n")
+cat("Kappa: ", conf_matrix$overall['Kappa'], "\n")
+
+# Generar un gráfico de las predicciones vs etiquetas reales
+# Usaremos las dos primeras características (Sepal.Length y Sepal.Width) para graficar
+test_results <- data.frame(
+  Sepal.Length = test_X$Sepal.Length,
+  Sepal.Width = test_X$Sepal.Width,
+  Actual = test_y,
+  Predicted = predictions
+)
+
+
