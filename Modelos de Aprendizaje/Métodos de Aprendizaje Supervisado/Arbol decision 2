@@ -1,7 +1,7 @@
 # Cargar las librerías necesarias
 library(rpart)       # Para crear el árbol de decisión
-library(rpart.plot)  # Para graficar el árbol
 library(caret)       # Para particionar los datos y métricas de rendimiento
+library(rpart.plot)  # Para graficar el árbol
 
 # Cargar el conjunto de datos iris
 data(iris)
@@ -39,3 +39,6 @@ print(conf_matrix)
 # Métricas de evaluación
 cat("Accuracy: ", conf_matrix$overall['Accuracy'], "\n")
 cat("Kappa: ", conf_matrix$overall['Kappa'], "\n")
+
+# Graficar el árbol de decisión
+rpart.plot(tree_model, type = 3, extra = 102, fallen.leaves = TRUE, main = "Árbol de Decisión - Modelo de Clasificación")
