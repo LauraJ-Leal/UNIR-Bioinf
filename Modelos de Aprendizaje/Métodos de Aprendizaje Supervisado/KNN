@@ -1,7 +1,7 @@
 # Cargar las librerías necesarias
 library(class)      # Para la función knn
 library(caret)      # Para particionar los datos y métricas de rendimiento
-library(ggplot2)    # Para gráficos
+
 
 # Cargar el conjunto de datos iris
 data(iris)
