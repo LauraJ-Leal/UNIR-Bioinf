@@ -1,61 +1,51 @@
-# adicionar gráfico al modelo KNN
-# Cargar las librerías necesarias
-library(class)      # Para la función knn
-library(caret)      # Para particionar los datos y métricas de rendimiento
+##Preparación de las bases de datos para modelos de clasificación##
+data <- read.csv('data.csv')
+str(data) #Revisión de datos
+summary(data)
+
+data$Diagnosis <- as.factor(data$Diagnosis)
+
+library(caret) #Cargar librería para el entrenamiento de los datos
+
+##Determinar cómo se partirán los datos para el entrenamiento y el testeo
+set.seed(123)
+
+trainIndex <- createDataPartition(data$Diagnosis, p = 0.75, list = FALSE)
+trainData <- data[trainIndex,]
+testData <- data[-trainIndex,]
+
+##Instalación de librerías para modelos de Machine Learning##
+installed.packages(c('glmnet', 'tidyverse', 'rpart', 'rpart.plot', 'rattle', 'pROC', 'PRROC', 'MASS', 'klaR', 'gridExtra'))
+
+#Cargar librerías para modedlos de Machine Learning##
+library(glmnet) # ElasticNet
+library(tidyverse)
+library(pROC) # ROC
+library(PRROC) # PR-Curve
+library(gridExtra) # juntar los gráficos
+
+####--Implementación de modelos de Machine Learning--###
+
+##kNN
+knnModel <- train(Diagnosis ~ .,
+                  data = trainData,
+                  method = "knn",
+                  trControl = trainControl(method = "cv", number = 10),
+                  preProcess = c("center", "scale"),
+                  tuneLength = 30)
+
+knnModel
+
+plot(knnModel)
+
+# Realizar predicciones en el conjunto de prueba utilizando el modelo entrenado
+predictions <- predict(knnModel, newdata = testData )
+predictions
+
+# Evaluar la precisión del modelo utilizando la matriz de confusión
+confusionMatrix(predictions, testData$Diagnosis)
 
 
-# Cargar el conjunto de datos iris
-data(iris)
-
-# Visualizar las primeras filas del conjunto de datos
-head(iris)
-
-# Dividir el conjunto de datos en entrenamiento (70%) y prueba (30%)
-set.seed(123)  # Fijar la semilla para reproducibilidad
-train_index <- createDataPartition(iris$Species, p = 0.7, list = FALSE)
-
-train_data <- iris[train_index, ]
-test_data <- iris[-train_index, ]
-
-# Separar las características (X) y las etiquetas (y)
-train_X <- train_data[, -5]  # Columnas 1 a 4 (características)
-train_y <- train_data[, 5]   # Columna 5 (etiqueta)
-
-test_X <- test_data[, -5]
-test_y <- test_data[, 5]
-
-# Aplicar el algoritmo KNN con k=3
-k <- 3
-predictions <- knn(train = train_X, test = test_X, cl = train_y, k = k)
-
-# Evaluar el rendimiento del modelo
-conf_matrix <- confusionMatrix(predictions, test_y)
-print(conf_matrix)
-
-# Métricas de evaluación
-cat("Accuracy: ", conf_matrix$overall['Accuracy'], "\n")
-cat("Kappa: ", conf_matrix$overall['Kappa'], "\n")
-
-# Generar un gráfico de las predicciones vs etiquetas reales
-# Usaremos las dos primeras características (Sepal.Length y Sepal.Width) para graficar
-test_results <- data.frame(
-  Sepal.Length = test_X$Sepal.Length,
-  Sepal.Width = test_X$Sepal.Width,
-  Actual = test_y,
-  Predicted = predictions
-)
-
-# Crear el gráfico ADICIONADO
-ggplot(test_results, aes(x = Sepal.Length, y = Sepal.Width)) +
-  geom_point(aes(color = Predicted, shape = Actual), size = 3) +
-  labs(
-    title = "KNN: Clasificación de las especies del conjunto de prueba",
-    x = "Longitud del Sépalo",
-    y = "Ancho del Sépalo",
-    color = "Predicción",
-    shape = "Real"
-  ) +
-  theme_minimal() +
-  scale_color_manual(values = c("setosa" = "blue", "versicolor" = "green", "virginica" = "red")) +
-  scale_shape_manual(values = c(16, 17, 18))  # Formas diferentes para clases reales
-
+# Obtener probabilidades
+probabilities_knn <- predict(knnModel, newdata = testData, type = "prob")
+probabilities_knn
