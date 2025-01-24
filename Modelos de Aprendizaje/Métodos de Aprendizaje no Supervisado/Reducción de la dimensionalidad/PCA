@@ -4,39 +4,45 @@
 # --------------------------------------------------------------
 
 # Paso 1: Cargar el conjunto de datos
-data(iris)  # Cargar datos incluidos en R
-head(iris)  # Visualizar las primeras filas del conjunto de datos
+data <- read.csv ("Iris")  # Cargar datos incluidos en R
+summary(data)  # Visualizar las primeras filas del conjunto de datos
 
 # Paso 2: Preparar los datos para el PCA
-# Eliminamos la columna categórica 'Species'
-iris_data <- iris[, -5]  # Seleccionar solo las columnas numéricas
+#Visualización missing
+sum(is.na(df))
+any(is.na(df))
 
 # Paso 3: Escalar los datos
 # Es importante estandarizar los datos para que cada variable tenga media 0 y desviación estándar 1
-iris_scaled <- scale(iris_data)
+data_scaled <- scale(data)
 
 # Paso 4: Aplicar el PCA
-pca_result <- prcomp(iris_scaled, center = TRUE, scale. = TRUE)
+pca_result <- prcomp(data_scaled, center = TRUE, scale = FALSE) #No se escalan los datos (FALSE) porque se realizo en el proceso anterior
 
-# Paso 5: Analizar los resultados
+# Paso 5: Resultados Componentes principales
+pca.data <- data.frame (pca.results$x)
 summary(pca_result)  # Resumen de la varianza explicada por cada componente principal
 
-# Paso 6: Graficar la varianza explicada
-# Proporción de la varianza explicada por cada componente
-var_exp <- pca_result$sdev^2 / sum(pca_result$sdev^2)  # Proporción de varianza
-cum_var_exp <- cumsum(var_exp)  # Varianza acumulada
+# Paso 6: Varianza explicada
+# Varianza
+varianzas <- pca_result$sdev^2 
 
-# Graficar la varianza explicada
-barplot(var_exp, main = "Proporción de Varianza Explicada",
-        xlab = "Componentes Principales", ylab = "Proporción de Varianza")
+#Total de la varianza de los datos
+total.varianza <- sum(varianzas)
 
-# Paso 7: Visualizar las observaciones en el espacio de los primeros dos componentes
-library(ggplot2)  # Cargar ggplot2 para gráficos
+#Varianza explicada por cada componente principal
+varianza.explicada <- varianzas/total.varianza
 
-# Convertir los datos del PCA a un DataFrame
-pca_data <- data.frame(PC1 = pca_result$x[, 1], 
-                       PC2 = pca_result$x[, 2], 
-                       Species = iris$Species)
+#Varianza explicada por cada componente principal
+varianza.acumulada <- cumsum(varianza.explicada)
+
+#Tomamos el número de componentes principales que explican el 90% de la varianza
+n.pc <- min(which(varianza.acumulada > 0.9))
+
+#Paso 7: Gráfico
+# Etiquetas de los ejer del gráfico
+x_label <- paste0 (paste('PC1', round(varianza.explicads[1] * 100, 2)), '%')
+y_label <- paste0 (paste('PC2', round(varianza.explicada[2] * 100, 2)), '%')
 
 # Graficar las observaciones proyectadas en el espacio de los primeros dos componentes
 ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
@@ -45,57 +51,3 @@ ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
        x = "Componente Principal 1 (PC1)",
        y = "Componente Principal 2 (PC2)") +
   theme_minimal()
-
-# Paso 8: Interpretar los resultados
-# Cargar la matriz de carga (loading) para ver la contribución de cada variable original a los componentes
-pca_result$rotation  # Matriz de carga de las variables originales
-# --------------------------------------------------------------
-# Ejemplo de PCA en R utilizando el conjunto de datos 'iris'
-# --------------------------------------------------------------
-
-# Paso 1: Cargar el conjunto de datos
-data(iris)  # Cargar datos incluidos en R
-head(iris)  # Visualizar las primeras filas del conjunto de datos
-
-# Paso 2: Preparar los datos para el PCA
-# Eliminamos la columna categórica 'Species'
-iris_data <- iris[, -5]  # Seleccionar solo las columnas numéricas
-
-# Paso 3: Escalar los datos
-# Es importante estandarizar los datos para que cada variable tenga media 0 y desviación estándar 1
-iris_scaled <- scale(iris_data)
-
-# Paso 4: Aplicar el PCA
-pca_result <- prcomp(iris_scaled, center = TRUE, scale. = TRUE)
-
-# Paso 5: Analizar los resultados
-summary(pca_result)  # Resumen de la varianza explicada por cada componente principal
-
-# Paso 6: Graficar la varianza explicada
-# Proporción de la varianza explicada por cada componente
-var_exp <- pca_result$sdev^2 / sum(pca_result$sdev^2)  # Proporción de varianza
-cum_var_exp <- cumsum(var_exp)  # Varianza acumulada
-
-# Graficar la varianza explicada
-barplot(var_exp, main = "Proporción de Varianza Explicada",
-        xlab = "Componentes Principales", ylab = "Proporción de Varianza")
-
-# Paso 7: Visualizar las observaciones en el espacio de los primeros dos componentes
-library(ggplot2)  # Cargar ggplot2 para gráficos
-
-# Convertir los datos del PCA a un DataFrame
-pca_data <- data.frame(PC1 = pca_result$x[, 1], 
-                       PC2 = pca_result$x[, 2], 
-                       Species = iris$Species)
-
-# Graficar las observaciones proyectadas en el espacio de los primeros dos componentes
-ggplot(pca_data, aes(x = PC1, y = PC2, color = Species)) +
-  geom_point(size = 2) +
-  labs(title = "PCA de iris: PC1 vs PC2",
-       x = "Componente Principal 1 (PC1)",
-       y = "Componente Principal 2 (PC2)") +
-  theme_minimal()
-
-# Paso 8: Interpretar los resultados
-# Cargar la matriz de carga (loading) para ver la contribución de cada variable original a los componentes
-pca_result$rotation  # Matriz de carga de las variables originales
