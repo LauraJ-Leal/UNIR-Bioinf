@@ -27,6 +27,14 @@ summary(pca_result)  # Resumen de la varianza explicada por cada componente prin
 # Varianza
 varianzas <- pca_result$sdev^2 
 
+# 20250126
+# Las varianzas se dedebn recalcular utilizando metodos variados para determinar el grado de impacto sobre los datos originales
+codigo R
+codigo R
+codigo R
+codigo R
+
+
 #Total de la varianza de los datos
 total.varianza <- sum(varianzas)
 
